@@ -1,0 +1,5 @@
+venv/
+waveshare_epd/
+__pycache__/
+*.pyc
+.DS_Store
