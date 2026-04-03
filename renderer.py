@@ -45,13 +45,13 @@ class DisplayRenderer:
     W = config.DISPLAY_WIDTH
     H = config.DISPLAY_HEIGHT
 
-    # Column x-positions (tune to your display width)
+    # ── Column x-positions (tune to your display width)
     COL_CALL    = 2
-    COL_AIRLINE = 68
-    COL_DIR     = 148
-    COL_ALT     = 162
-    COL_SPD     = 210
-    COL_PHASE   = 252
+    COL_TYPE    = 68     # aircraft type e.g. B738
+    COL_DIR     = 120
+    COL_ALT     = 134
+    COL_SPD     = 192
+    COL_PHASE   = 240
 
     def __init__(self):
         self.font_h  = _load_font(config.FONT_PATH_BOLD, config.FONT_SIZE_HEADER)
@@ -109,11 +109,11 @@ class DisplayRenderer:
 
         # ── Column headers ────────────────────────────────────────────────────
         headers = [
-            (self.COL_CALL,    "CALL"),
-            (self.COL_AIRLINE, "AIRLINE"),
-            (self.COL_ALT,     "ALT ft"),
-            (self.COL_SPD,     "KTS"),
-            (self.COL_PHASE,   "PH"),
+            (self.COL_CALL,  "CALL"),
+            (self.COL_TYPE,  "TYPE"),
+            (self.COL_ALT,   "ALT ft"),
+            (self.COL_SPD,   "KTS"),
+            (self.COL_PHASE, "PH"),
         ]
         for x, label in headers:
             self._text(draw, (x, y), label, self.font_rb)
@@ -134,12 +134,12 @@ class DisplayRenderer:
             alt_str = _ft(ac.altitude_ft, "{:,}")
             spd_str = _ft(ac.speed_kts,   "{}")
 
-            self._text(draw, (self.COL_CALL,    y), ac.callsign_clean[:7], self.font_rb)
-            self._text(draw, (self.COL_AIRLINE, y), ac.airline[:9],        self.font_r)
-            self._text(draw, (self.COL_DIR,     y), ac.direction_arrow,    self.font_r)
-            self._text(draw, (self.COL_ALT,     y), alt_str,               self.font_r)
-            self._text(draw, (self.COL_SPD,     y), spd_str,               self.font_r)
-            self._text(draw, (self.COL_PHASE,   y), ac.phase,              self.font_rb)
+            self._text(draw, (self.COL_CALL,  y), ac.callsign_clean[:7],  self.font_rb)
+            self._text(draw, (self.COL_TYPE,  y), ac.aircraft_type[:6],   self.font_r)
+            self._text(draw, (self.COL_DIR,   y), ac.direction_arrow,     self.font_r)
+            self._text(draw, (self.COL_ALT,   y), alt_str,                self.font_r)
+            self._text(draw, (self.COL_SPD,   y), spd_str,                self.font_r)
+            self._text(draw, (self.COL_PHASE, y), ac.phase,               self.font_rb)
 
             y += self.row_h
 

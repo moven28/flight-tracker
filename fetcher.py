@@ -33,22 +33,27 @@ _IDX = {
     "pos_source": 16,
 }
 
-OPENSKY_URL = "https://opensky-network.org/api/states/all"
+OPENSKY_URL      = "https://opensky-network.org/api/states/all"
+OPENSKY_META_URL = "https://opensky-network.org/api/metadata/aircraft/icao/{icao24}"
+
+# Simple in-memory cache so we don't re-fetch the same aircraft type repeatedly
+_type_cache: dict[str, str] = {}
 
 
 @dataclass
 class Aircraft:
-    icao24:    str
-    callsign:  str
-    origin:    str
-    lat:       Optional[float]
-    lon:       Optional[float]
-    altitude:  Optional[float]   # metres
-    velocity:  Optional[float]   # m/s
-    heading:   Optional[float]   # degrees
-    vert_rate: Optional[float]   # m/s  (+climb / -descend)
-    on_ground: bool
-    squawk:    str
+    icao24:       str
+    callsign:     str
+    origin:       str
+    lat:          Optional[float]
+    lon:          Optional[float]
+    altitude:     Optional[float]   # metres
+    velocity:     Optional[float]   # m/s
+    heading:      Optional[float]   # degrees
+    vert_rate:    Optional[float]   # m/s  (+climb / -descend)
+    on_ground:    bool
+    squawk:       str
+    aircraft_type: str = "——"       # e.g. "B738", "A320", fetched separately
 
     # ── Derived helpers ─────────────────────────────────────────────────────
 
@@ -123,10 +128,37 @@ def _parse_state(sv: list) -> Optional[Aircraft]:
         return None
 
 
+def fetch_aircraft_type(icao24: str, auth=None) -> str:
+    """
+    Look up the aircraft type designator (e.g. B738, A320) from the
+    OpenSky metadata endpoint. Results are cached in memory.
+    """
+    if not icao24:
+        return "——"
+    key = icao24.lower()
+    if key in _type_cache:
+        return _type_cache[key]
+    try:
+        url  = OPENSKY_META_URL.format(icao24=key)
+        resp = requests.get(url, auth=auth, timeout=10)
+        if resp.status_code == 200:
+            data  = resp.json()
+            # typecode is the ICAO aircraft type designator e.g. "B738"
+            atype = data.get("typecode") or data.get("model") or "——"
+            atype = atype.strip()[:6] or "——"
+        else:
+            atype = "——"
+    except Exception:
+        atype = "——"
+    _type_cache[key] = atype
+    return atype
+
+
 def fetch_aircraft() -> list[Aircraft]:
     """
     Query OpenSky for the current bounding box and return a sorted list
     of Aircraft objects (airborne first, then by altitude descending).
+    Also fetches aircraft type for each result.
     """
     lat_min, lon_min, lat_max, lon_max = config.BOUNDING_BOX
     params = {
@@ -157,7 +189,11 @@ def fetch_aircraft() -> list[Aircraft]:
     aircraft = [a for sv in states if (a := _parse_state(sv)) is not None]
 
     # Sort: airborne first, then highest altitude
-    aircraft.sort(
-        key=lambda a: (a.on_ground, -(a.altitude or 0))
-    )
+    aircraft.sort(key=lambda a: (a.on_ground, -(a.altitude or 0)))
+
+    # Only fetch type metadata for the top N aircraft we'll actually display
+    # to avoid hammering the API with requests for every aircraft in range
+    for ac in aircraft[:config.MAX_AIRCRAFT_SHOWN]:
+        ac.aircraft_type = fetch_aircraft_type(ac.icao24, auth=auth)
+
     return aircraft

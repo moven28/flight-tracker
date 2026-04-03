@@ -9,7 +9,7 @@ BOUNDING_BOX = (47.6, -122.5, 48.0, -122.0)
 
 # ── Refresh ───────────────────────────────────
 REFRESH_INTERVAL_SECONDS = 60   # how often to poll OpenSky
-MAX_AIRCRAFT_SHOWN = 5          # rows visible on the display
+MAX_AIRCRAFT_SHOWN = 3          # rows visible on the display
 
 # ── OpenSky API ───────────────────────────────
 # Leave as None to use the unauthenticated endpoint (rate-limited to ~100 req/day)

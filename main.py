@@ -82,11 +82,9 @@ class EInkDisplay:
 
 def _demo_aircraft() -> list[Aircraft]:
     return [
-        Aircraft("a1b2c3", "ASA123 ", "US", 47.82, -122.31, 10363, 215, 274,  2.1, False, "1234"),
-        Aircraft("d4e5f6", "DAL456 ", "US", 47.75, -122.20,  8687, 200, 180, -3.0, False, "4567"),
-        Aircraft("g7h8i9", "UAL789 ", "US", 47.90, -122.40,  3658, 150, 310,  5.5, False, "7890"),
-        Aircraft("j1k2l3", "N12345 ", "US", 47.85, -122.35,  None, None, None, None, True, "2000"),
-        Aircraft("m3n4o5", "QXE890 ", "US", 47.70, -122.25,  1524,  80, 095, -1.0, False, "5678"),
+        Aircraft("a1b2c3", "ASA123 ", "US", 47.82, -122.31, 10363, 215, 274,  2.1, False, "1234", "B739"),
+        Aircraft("d4e5f6", "DAL456 ", "US", 47.75, -122.20,  8687, 200, 180, -3.0, False, "4567", "A321"),
+        Aircraft("g7h8i9", "UAL789 ", "US", 47.90, -122.40,  3658, 150, 310,  5.5, False, "7890", "B738"),
     ]
 
 
